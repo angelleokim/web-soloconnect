@@ -56,7 +56,7 @@ const onFormSubmit = () => {
 
     <v-text-field
       v-model="formData.password"
-      prepend-icon="mdi-lock"
+      prepend-inner-icon="mdi-lock"
       label="Password"
       :type="isPasswordVisible ? 'text' : 'password'"
       :append-inner-icon="isPasswordVisible ? 'mdi-eye' : 'mdi-eye-off'"
@@ -66,7 +66,7 @@ const onFormSubmit = () => {
 
     <v-text-field
       v-model="formData.password_confirmation"
-      prepend-icon="mdi-lock"
+      prepend-inner-icon="mdi-lock"
       label="Password Confirmation"
       :type="isPasswordConfirmVisible ? 'text' : 'password'"
       :append-inner-icon="isPasswordConfirmVisible ? 'mdi-eye' : 'mdi-eye-off'"
