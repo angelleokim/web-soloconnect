@@ -6,7 +6,14 @@ import {
   confirmedValidator,
 } from '@/utils/validators'
 import { ref } from 'vue'
+import AlertNotification from '@/components/common/AlertNotification.vue'
+import { supabase, formActionDefault } from '@/utils/supabase.js'
+import { useRouter } from 'vue-router'
 
+// Load pre-defined vue functions
+const router = useRouter()
+
+//Load VARIABLES
 const formDataDefault = {
   firstname: '',
   lastname: '',
@@ -14,17 +21,59 @@ const formDataDefault = {
   password: '',
   password_confirmation: '',
 }
-
 const formData = ref({
   ...formDataDefault,
+})
+const formAction = ref({
+  ...formActionDefault,
 })
 
 const isPasswordVisible = ref(false)
 const isPasswordConfirmVisible = ref(false)
 const refVForm = ref()
 
-const onSubmit = () => {
-  alert(formData.value.email)
+//Register Functionality
+const onSubmit = async () => {
+  // Reset Form Action utils
+  formAction.value = { ...formActionDefault }
+  //Turn on processing
+  formAction.value.formProcess = true
+
+  const { data, error } = await supabase.auth.signUp({
+    email: formData.value.email,
+    password: formData.value.password,
+    options: {
+      data: {
+        firstname: formData.value.firstname,
+        lasname: formData.value.lastname,
+        email: formData.value.email
+        // is_admin: true, //Just turn to true if admin account
+        //role: 'Admin' // if role based
+      },
+    },
+  })
+
+  if (error) {
+    // console.log(error)
+
+    // Add error message and status code
+    formAction.value.formErrorMessage = error.message
+    formAction.value.formStatus = error.status
+  } else if (data) {
+    // console.log(data)
+
+    // Add success message
+    formAction.value.formSuccessMessage = 'Successfully Registered Account'
+    // Add here more actions
+    router.replace('/login')
+  }
+
+  // Reset form
+  refVForm.value?.reset()
+  // formData.value = { ...formDataDefault }
+
+  // Turn off processing
+  formAction.value.formProcess = false
 }
 
 const onFormSubmit = () => {
@@ -35,7 +84,12 @@ const onFormSubmit = () => {
 </script>
 
 <template>
-  <v-form ref="refVForm" fast-fail @submit.prevent="onFormSubmit">
+  <AlertNotification
+    :form-success-message="formAction.formSuccessMessage"
+    :form-error-message="formAction.formErrorMessage"
+  ></AlertNotification>
+
+  <v-form class="mt-5" ref="refVForm" fast-fail @submit.prevent="onFormSubmit">
     <v-text-field
       v-model="formData.firstname"
       label="Firstname"
@@ -83,6 +137,8 @@ const onFormSubmit = () => {
       block
       color="warning"
       prepend-icon="mdi-account-plus"
+      :disabled="formAction.formProcess"
+      :loading="formAction.formProcess"
       >Register</v-btn
     >
   </v-form>
