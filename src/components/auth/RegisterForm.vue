@@ -8,7 +8,12 @@ import {
 import { ref } from 'vue'
 import AlertNotification from '@/components/common/AlertNotification.vue'
 import { supabase, formActionDefault } from '@/utils/supabase.js'
+import { useRouter } from 'vue-router'
 
+// Load pre-defined vue functions
+const router = useRouter()
+
+//Load VARIABLES
 const formDataDefault = {
   firstname: '',
   lastname: '',
@@ -16,7 +21,6 @@ const formDataDefault = {
   password: '',
   password_confirmation: '',
 }
-
 const formData = ref({
   ...formDataDefault,
 })
@@ -28,8 +32,11 @@ const isPasswordVisible = ref(false)
 const isPasswordConfirmVisible = ref(false)
 const refVForm = ref()
 
+//Register Functionality
 const onSubmit = async () => {
+  // Reset Form Action utils
   formAction.value = { ...formActionDefault }
+  //Turn on processing
   formAction.value.formProcess = true
 
   const { data, error } = await supabase.auth.signUp({
@@ -39,21 +46,33 @@ const onSubmit = async () => {
       data: {
         firstname: formData.value.firstname,
         lasname: formData.value.lastname,
+        email: formData.value.email
+        // is_admin: true, //Just turn to true if admin account
+        //role: 'Admin' // if role based
       },
     },
   })
 
   if (error) {
-    console.log(error)
+    // console.log(error)
+
+    // Add error message and status code
     formAction.value.formErrorMessage = error.message
     formAction.value.formStatus = error.status
   } else if (data) {
-    console.log(data)
-    formAction.value.formSucessMessage = 'Successfully Registered Account'
+    // console.log(data)
+
+    // Add success message
+    formAction.value.formSuccessMessage = 'Successfully Registered Account'
     // Add here more actions
-    refVForm.value?.reset
+    router.replace('/login')
   }
 
+  // Reset form
+  refVForm.value?.reset()
+  // formData.value = { ...formDataDefault }
+
+  // Turn off processing
   formAction.value.formProcess = false
 }
 
@@ -66,10 +85,10 @@ const onFormSubmit = () => {
 
 <template>
   <AlertNotification
-    :form-success-message="formAction.formSucessMessage"
+    :form-success-message="formAction.formSuccessMessage"
     :form-error-message="formAction.formErrorMessage"
   ></AlertNotification>
-  
+
   <v-form class="mt-5" ref="refVForm" fast-fail @submit.prevent="onFormSubmit">
     <v-text-field
       v-model="formData.firstname"

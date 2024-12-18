@@ -1,5 +1,5 @@
  // 👉 IsEmpty
-export const isEmpty = (value) => {
+ export const isEmpty = (value) => {
   if (value === null || value === undefined || value === '') return true
 
   return !!(Array.isArray(value) && value.length === 0)
