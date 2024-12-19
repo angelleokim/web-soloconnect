@@ -25,3 +25,30 @@ export const isAuthenticated = async () => {
 
   return !!data.session
 }
+
+const supabaseLogout = async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    throw new Error(error.message); // Throw the error if something goes wrong
+  }
+};
+
+// Main logout function
+async function doLogout() {
+  const confirmed = window.confirm("Are you sure you want to logout?");
+  if (!confirmed) {
+    return; // Exit if the user cancels
+  }
+
+  try {
+    await supabaseLogout(); // Call the Supabase logout function
+
+    // Clear local storage
+    localStorage.clear();
+
+    alert("Logout Successfully!");
+  } catch (error) {
+    alert("Logout Failed: " + error.message); // Handle any errors
+  }
+}
+export { doLogout };
